@@ -7,5 +7,13 @@ class UserScheme(BaseModel):
     age: int
     password: str
 
+
+class ShowUser(BaseModel):
+    name: str
+    email: str
+    age: int
+
+    class Config:
+        orm_mode = True
 # falta de role em UserScheme
 

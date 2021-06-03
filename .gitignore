@@ -1,2 +1,3 @@
-fastapi-env/
+fastapi-venv/
 base_class.py
+__pycache__/
