@@ -8,7 +8,7 @@ logon_router = APIRouter(tags=["logon"])
 
 
 @logon_router.post("/logon",
-                   status_code=status.HTTP_202_ACCEPTED,
+                   status_code=status.HTTP_201_CREATED,
                    response_model=ShowUser)
 async def create_user(request: UserScheme, db: Session = Depends(get_db)):
     new_user = User(name=request.name,

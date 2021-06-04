@@ -6,6 +6,7 @@ from jose import jwt, JWTError
 from typing import Dict
 from datetime import datetime,timedelta
 from config import SECRET_KEY, ALGORITHM, EXPIRE_TIME, Oauth2_scheme
+from utils.user import CurrentUser
 
 
 def create_access_token(data: Dict[str, int]) -> str:
@@ -19,7 +20,7 @@ def create_access_token(data: Dict[str, int]) -> str:
     return jwt_token
 
 
-def get_current_user(token: str = Depends(Oauth2_scheme)) -> Dict[str, int]:
+def get_current_user(token: str = Depends(Oauth2_scheme)) -> CurrentUser:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="credentials invalid",
@@ -35,7 +36,9 @@ def get_current_user(token: str = Depends(Oauth2_scheme)) -> Dict[str, int]:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    return {"email": email, "id": user_id}
+
+    return CurrentUser(email=email,
+                       user_id=user_id)
 
 
 
