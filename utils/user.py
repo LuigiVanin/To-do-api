@@ -27,5 +27,6 @@ class UpdateUser(BaseModel):
 class CurrentUser(BaseModel):
     user_id: int
     email: str
+    role: str
 # falta de role em UserScheme
 

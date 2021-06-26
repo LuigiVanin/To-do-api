@@ -3,13 +3,12 @@ from fastapi.security import (
     OAuth2PasswordRequestForm)
 from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
-from typing import Dict
 from datetime import datetime,timedelta
 from config import SECRET_KEY, ALGORITHM, EXPIRE_TIME, Oauth2_scheme
 from utils.user import CurrentUser
 
 
-def create_access_token(data: Dict[str, int]) -> str:
+def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=EXPIRE_TIME)
 
@@ -31,6 +30,7 @@ def get_current_user(token: str = Depends(Oauth2_scheme)) -> CurrentUser:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         user_id: int = payload.get("id")
+        role: str = payload.get("role")
 
         if email is None:
             raise credentials_exception
@@ -38,7 +38,8 @@ def get_current_user(token: str = Depends(Oauth2_scheme)) -> CurrentUser:
         raise credentials_exception
 
     return CurrentUser(email=email,
-                       user_id=user_id)
+                       user_id=user_id,
+                       role=role)
 
 
 

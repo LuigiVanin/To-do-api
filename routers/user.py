@@ -75,4 +75,30 @@ async def concede_admin(user_id: Optional[int] = None, db: Session = Depends(get
     return to_admin.first()
 
 
+@user_router.delete("/user/{id}",
+                    status_code=status.HTTP_204_NO_CONTENT)
+def delete_account(user_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: CurrentUser = Depends(get_current_user),
+                   ) -> None:
+    to_delete = db.query(User).filter(user_id == User.user_id).first()
 
+    if not to_delete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="user não existe"
+        )
+
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="você não é autorizado a fazer essa requisição"
+        )
+    elif to_delete.user_id == current_user.user_id:
+        if len(db.query(User).filter(User.role == 'admin').all()) == 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="para que essa conta seja deletada é necessário que exista outro admin"
+            )
+    to_delete.delete(synchronize_session=False)
+    db.commit()

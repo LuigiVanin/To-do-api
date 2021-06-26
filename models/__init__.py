@@ -1,2 +1,2 @@
-from .user import User, Rel_User_Todo
+from .user import User
 from .todo import Todo
