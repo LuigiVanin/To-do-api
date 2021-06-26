@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from .todo import ShowTodo
+from typing import List
 
 
 class UserScheme(BaseModel):
@@ -30,3 +32,10 @@ class CurrentUser(BaseModel):
     role: str
 # falta de role em UserScheme
 
+
+class ShowMe(BaseModel):
+    name: str
+    email: str
+    age: int
+    role: str
+    todos: List[ShowTodo] = []

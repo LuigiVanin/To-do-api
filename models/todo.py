@@ -10,11 +10,10 @@ class Todo(Base):
 
     todo_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"))
-    requested = Column(Integer)
-    accepted = Column(Boolean, default=False)
     disable = Column(Boolean, default=False)
     title = Column(String(100))
     todo_body = Column(Text)
+    status = Column(Integer, default=0)
     create_date = Column(DateTime, default=datetime.utcnow())
     updated_date = Column(DateTime, default=datetime.utcnow())
     owner = relationship("User", back_populates="todos")

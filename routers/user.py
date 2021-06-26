@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from utils.user import UserScheme, UpdateUser, CurrentUser, ShowUser
+from utils.user import UserScheme, UpdateUser, CurrentUser, ShowUser, ShowMe
 from sqlalchemy.orm import Session
 from config import get_db, pwd_context
 from models import *
@@ -23,7 +23,21 @@ async def get_user(user_id: int, db: Session = Depends(get_db),
     return find_user.first()
 
 
-@user_router.put("/user/{current_user}")
+@user_router.get("/me",
+                 response_model=ShowUser)
+async def get_me(db: Session = Depends(get_db),
+                 current_user: UserScheme = Depends(get_current_user)):
+    me = db.query(User).filter(User.email == current_user.email).first()
+    if not me:
+        HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="alguma coisa está errada"
+        )
+
+    return me
+
+
+@user_router.put("/user")
 async def update_me(request: UpdateUser, db: Session = Depends(get_db),
                     current_user: CurrentUser = Depends(get_current_user)
                     ):
@@ -77,11 +91,12 @@ async def concede_admin(user_id: Optional[int] = None, db: Session = Depends(get
 
 @user_router.delete("/user/{id}",
                     status_code=status.HTTP_204_NO_CONTENT)
-def delete_account(user_id: int,
+async def delete_account(user_id: int,
                    db: Session = Depends(get_db),
-                   current_user: CurrentUser = Depends(get_current_user),
+                   current_user: CurrentUser = Depends(get_current_user)
                    ) -> None:
-    to_delete = db.query(User).filter(user_id == User.user_id).first()
+    delete = db.query(User).filter(user_id == User.user_id)
+    to_delete = delete.first()
 
     if not to_delete:
         raise HTTPException(
@@ -100,5 +115,5 @@ def delete_account(user_id: int,
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="para que essa conta seja deletada é necessário que exista outro admin"
             )
-    to_delete.delete(synchronize_session=False)
+    delete.delete(synchronize_session=False)
     db.commit()
